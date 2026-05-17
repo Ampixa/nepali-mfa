@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nepali-mfa"
+version = "0.1.0"
+description = "Nepali forced-alignment corpus preparation, review, and reverse-G2P tooling"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "nepali-text-frontend @ git+https://github.com/Ampixa/nepa-newa-text-frontend.git",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+reverse-g2p = ["torch>=2"]
+
+[project.scripts]
+nepali-mfa-build-corpus = "nepali_mfa.build_corpus:main"
+nepali-mfa-build-heldout-slice = "nepali_mfa.build_heldout_slice:main"
+nepali-mfa-build-validation-slice = "nepali_mfa.build_validation_slice:main"
+nepali-mfa-build-failure-dashboard = "nepali_mfa.build_failure_dashboard:main"
+nepali-mfa-apply-review-labels = "nepali_mfa.apply_review_labels:main"
+nepali-mfa-build-reverse-g2p = "nepali_mfa.build_reverse_g2p:main"
+nepali-mfa-build-reverse-g2p-corpus = "nepali_mfa.build_reverse_g2p_training_corpus:main"
+nepali-mfa-train-reverse-g2p = "nepali_mfa.train_reverse_g2p_model:main"
+nepali-mfa-predict-reverse-g2p = "nepali_mfa.predict_reverse_g2p_model:main"
+nepali-mfa-serve-static-range = "nepali_mfa.serve_static_range:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
