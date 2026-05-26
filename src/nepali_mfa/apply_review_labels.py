@@ -76,6 +76,25 @@ def text_field_for(row: dict[str, Any], preferred: str) -> str | None:
     return None
 
 
+def as_float(value: Any) -> float | None:
+    try:
+        if value in (None, ""):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def analysis_duration(analysis: dict[str, str] | None) -> float | None:
+    if not analysis:
+        return None
+    begin = as_float(analysis.get("begin"))
+    end = as_float(analysis.get("end"))
+    if begin is None or end is None:
+        return None
+    return max(0.0, end - begin)
+
+
 def reviewed_tier(label: str, *, repaired: bool) -> tuple[str, bool, bool, str]:
     """Return quality tier, use_asr, use_mfa_seed, decision."""
     if label == "keep":
@@ -155,6 +174,11 @@ def enrich_row(
         "number_repaired": repaired,
     }
     if analysis:
+        existing_duration = as_float(out.get("duration_sec") or out.get("duration"))
+        if existing_duration is None or existing_duration <= 0:
+            duration = analysis_duration(analysis)
+            if duration is not None and duration > 0:
+                out["duration_sec"] = duration
         out["mfa_metrics"] = {
             key: value
             for key, value in analysis.items()

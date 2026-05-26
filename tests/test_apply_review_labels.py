@@ -72,3 +72,34 @@ def test_apply_mfa_review_labels_unlabeled_goes_to_review(tmp_path: Path) -> Non
     needs_review = read_jsonl(out / "needs_review.jsonl")
     assert needs_review[0]["review_label"] == "unlabeled"
     assert needs_review[0]["use_for_asr_training"] is False
+
+
+def test_apply_mfa_review_labels_backfills_duration_from_analysis(tmp_path: Path) -> None:
+    manifest = tmp_path / "manifest.jsonl"
+    manifest.write_text(
+        json.dumps({"id": "x", "text": "नमस्ते", "duration_sec": 0}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    review = tmp_path / "review.tsv"
+    review.write_text("id\tlabel\tnotes\nx\tbackground_audio\tbed audio\n", encoding="utf-8")
+    analysis = tmp_path / "analysis.csv"
+    analysis.write_text(
+        "file,begin,end,speaker,overall_log_likelihood,speech_log_likelihood,phone_duration_deviation,snr\n"
+        "x,1.5,4.25,unknown,-10,-8,1,12\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "out"
+
+    assert main([
+        "--manifest",
+        str(manifest),
+        "--review-tsv",
+        str(review),
+        "--analysis-csv",
+        str(analysis),
+        "--out-dir",
+        str(out),
+    ]) == 0
+
+    noisy = read_jsonl(out / "asr_noisy_background.jsonl")
+    assert noisy[0]["duration_sec"] == 2.75

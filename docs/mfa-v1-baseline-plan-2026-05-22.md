@@ -132,3 +132,32 @@ Exclude from clean MFA seed:
 
 Rows with correct text/audio but background music can stay in an ASR noisy tier,
 but they should not train the clean MFA acoustic model.
+
+## 2026-05-27 Bulk Review Decision
+
+After sampling the failure-dashboard rows, the reviewer found background audio
+across the sampled set. We applied a conservative bulk label to all 248 rows in
+the Web UI queue:
+
+- label: `background_audio`
+- ASR use: yes, noisy/background tier
+- clean MFA seed use: no
+
+Generated local files:
+
+- `outputs/baseline_20260522/audit/manual_review_all_background_audio.tsv`
+- `outputs/baseline_20260522/reviewed_tiers_all_bg/asr_noisy_background.jsonl`
+- `outputs/baseline_20260522/reviewed_tiers_all_bg/summary.json`
+
+Result:
+
+- `asr_noisy_background`: 248 rows, 0.852603h
+- `mfa_clean_seed`: 0 rows
+- `needs_review`: 752 rows
+
+The served dashboard was also patched to default open rows to `BG audio`; the
+exported TSV is stored on the M4 at:
+
+```text
+/Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/failure_dashboard/mixed_heldout_1000_all_background_audio_review.tsv
+```
