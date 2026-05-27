@@ -211,3 +211,21 @@ Promotion policy:
 - `background_audio`: ASR noisy/background tier, not clean MFA seed.
 - `text_bad` and `audio_bad`: reject or repair before reuse.
 - `unsure`: keep in manual review.
+
+When the browser exports the TSV, apply the labels with:
+
+```bash
+nepali-mfa-apply-source-review-labels \
+  --manifest /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard/source_review_manifest.jsonl \
+  --review-tsv /path/to/sushant_candidate_clean_20260527_source_review.tsv \
+  --out-dir /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_reviewed
+```
+
+This writes:
+
+- `mfa_clean_seed_candidate.jsonl`
+- `asr_noisy_background.jsonl`
+- `rejected.jsonl`
+- `needs_review.jsonl`
+- `reviewed_all.jsonl`
+- `summary.json`
