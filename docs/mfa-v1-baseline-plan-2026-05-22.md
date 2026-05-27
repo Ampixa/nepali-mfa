@@ -161,3 +161,53 @@ exported TSV is stored on the M4 at:
 ```text
 /Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/failure_dashboard/mixed_heldout_1000_all_background_audio_review.tsv
 ```
+
+## 2026-05-27 Sushant Source Candidate-Clean Review
+
+We added `nepali-mfa-build-source-review-dashboard` for source-level review
+outside the failure-dashboard flow. This is for checking likely clean podcast
+sources before promoting them into a clean MFA seed tier.
+
+Generated Sushant KC dashboard on the M4:
+
+```text
+http://100.109.18.109:8771/
+```
+
+Inputs:
+
+```text
+/Users/cdjk/asr_mfa_validation_slices_20260516/mixed_5000/mfa_manifest.jsonl
+```
+
+Output directory:
+
+```text
+/Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard
+```
+
+Summary:
+
+- `rows_matching_source`: `1000`
+- `rows_missing_audio`: `0`
+- `rows_review`: `1000`
+- `review_hours`: `3.6438`
+- `source`: `sushant`
+- `slice_source`: `sushant_source_reviewed_le30`
+
+The dashboard serves audio through symlinks, so it does not duplicate the wav
+files. The server uses byte-range support and is running in the background via:
+
+```bash
+python3 /Users/cdjk/asr_mfa_scripts/serve_static_range.py \
+  --directory /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard \
+  --port 8771 \
+  --bind 0.0.0.0
+```
+
+Promotion policy:
+
+- `keep` and `minor`: candidate clean MFA seed, pending spot-check confidence.
+- `background_audio`: ASR noisy/background tier, not clean MFA seed.
+- `text_bad` and `audio_bad`: reject or repair before reuse.
+- `unsure`: keep in manual review.
