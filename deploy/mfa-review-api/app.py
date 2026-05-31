@@ -7,7 +7,7 @@ import io
 import os
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from flask import Flask, Response, abort, jsonify, request
@@ -49,6 +49,23 @@ CREATE INDEX IF NOT EXISTS idx_decisions_reviewer ON decisions (reviewer_name);
 CREATE INDEX IF NOT EXISTS idx_decisions_created ON decisions (created_at);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_decisions_unique_reviewer_entry
   ON decisions (dataset, entry_id, reviewer_name);
+
+CREATE TABLE IF NOT EXISTS claims (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  dataset TEXT NOT NULL,
+  entry_id TEXT NOT NULL,
+  reviewer_name TEXT NOT NULL,
+  reviewer_email TEXT,
+  client_ip TEXT,
+  client_ua TEXT,
+  claimed_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(dataset, entry_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_claims_dataset ON claims (dataset);
+CREATE INDEX IF NOT EXISTS idx_claims_reviewer ON claims (reviewer_name);
+CREATE INDEX IF NOT EXISTS idx_claims_updated ON claims (updated_at);
 """
 
 
@@ -84,6 +101,19 @@ def clean_text(value, limit: int) -> str:
     return str(value or "").strip()[:limit]
 
 
+def clean_id_list(value) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    cleaned = []
+    seen = set()
+    for item in value[:5000]:
+        entry_id = clean_text(item, 256)
+        if entry_id and entry_id not in seen:
+            cleaned.append(entry_id)
+            seen.add(entry_id)
+    return cleaned
+
+
 @app.get("/api/health")
 def health():
     return jsonify({"ok": True, "now": datetime.now(timezone.utc).isoformat()})
@@ -104,12 +134,111 @@ def stats():
             f"SELECT COUNT(DISTINCT reviewer_name) FROM decisions {where}",
             params,
         ).fetchone()[0]
+        active_claims = conn.execute(
+            f"SELECT COUNT(*) FROM claims {where}",
+            params,
+        ).fetchone()[0]
     return jsonify({
         "dataset": dataset or None,
         "total_decisions": total,
         "by_label": {row["label"]: row["n"] for row in rows},
         "unique_reviewers": reviewers,
+        "active_claims": active_claims,
     })
+
+
+@app.post("/api/claims/next")
+def next_claim():
+    payload = request.get_json(silent=True) or {}
+    dataset = clean_text(payload.get("dataset"), 128)
+    reviewer_name = clean_text(payload.get("reviewer_name"), 256)
+    reviewer_email = clean_text(payload.get("reviewer_email"), 256)
+    candidate_ids = clean_id_list(payload.get("candidate_ids"))
+    ttl_minutes = payload.get("ttl_minutes", 120)
+
+    try:
+        ttl_minutes = max(15, min(int(ttl_minutes), 24 * 60))
+    except (TypeError, ValueError):
+        ttl_minutes = 120
+
+    if not dataset:
+        return jsonify({"error": "missing field: dataset"}), 400
+    if not reviewer_name:
+        return jsonify({"error": "missing field: reviewer_name"}), 400
+    if not candidate_ids:
+        return jsonify({"error": "missing field: candidate_ids"}), 400
+
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=ttl_minutes)
+    cutoff_s = cutoff.strftime("%Y-%m-%d %H:%M:%S")
+
+    with db_conn() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        conn.execute(
+            "DELETE FROM claims WHERE dataset = ? AND updated_at < ?",
+            (dataset, cutoff_s),
+        )
+        decided = {
+            row["entry_id"]
+            for row in conn.execute(
+                "SELECT DISTINCT entry_id FROM decisions WHERE dataset = ?",
+                (dataset,),
+            ).fetchall()
+        }
+        claims = {
+            row["entry_id"]: row["reviewer_name"]
+            for row in conn.execute(
+                "SELECT entry_id, reviewer_name FROM claims WHERE dataset = ?",
+                (dataset,),
+            ).fetchall()
+        }
+
+        for entry_id in candidate_ids:
+            if entry_id in decided:
+                continue
+            current_reviewer = claims.get(entry_id)
+            if current_reviewer and current_reviewer != reviewer_name:
+                continue
+            if current_reviewer == reviewer_name:
+                conn.execute(
+                    """
+                    UPDATE claims
+                    SET reviewer_email = ?, client_ip = ?, client_ua = ?,
+                        updated_at = datetime('now')
+                    WHERE dataset = ? AND entry_id = ?
+                    """,
+                    (
+                        reviewer_email,
+                        client_ip(),
+                        clean_text(request.headers.get("User-Agent"), 512),
+                        dataset,
+                        entry_id,
+                    ),
+                )
+                conn.commit()
+                return jsonify({"ok": True, "entry_id": entry_id, "reclaimed": True})
+
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO claims
+                  (dataset, entry_id, reviewer_name, reviewer_email, client_ip, client_ua)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    dataset,
+                    entry_id,
+                    reviewer_name,
+                    reviewer_email,
+                    client_ip(),
+                    clean_text(request.headers.get("User-Agent"), 512),
+                ),
+            )
+            if cur.rowcount:
+                conn.commit()
+                return jsonify({"ok": True, "entry_id": entry_id, "reclaimed": False})
+
+        conn.commit()
+
+    return jsonify({"ok": True, "entry_id": None})
 
 
 @app.post("/api/decisions")
@@ -161,6 +290,10 @@ def post_decision():
               created_at = datetime('now')
             """,
             values,
+        )
+        conn.execute(
+            "DELETE FROM claims WHERE dataset = ? AND entry_id = ? AND reviewer_name = ?",
+            (values["dataset"], values["entry_id"], values["reviewer_name"]),
         )
         conn.commit()
     return jsonify({"ok": True, "id": cur.lastrowid}), 201

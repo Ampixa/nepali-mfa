@@ -56,6 +56,22 @@ function badLabel(label) {
   return ["background_audio", "text_bad", "audio_bad"].includes(label);
 }
 
+function setStatusFilter(value) {
+  statusFilter = value;
+  document.querySelectorAll(".status").forEach((button) => {
+    button.classList.toggle("active", button.dataset.status === value);
+  });
+}
+
+function setCurrentById(entryId) {
+  setStatusFilter("all");
+  filtered = rows;
+  const idx = rows.findIndex((row) => row.id === entryId);
+  current = idx >= 0 ? idx : 0;
+  renderList();
+  renderCurrent();
+}
+
 function applyFilters() {
   filtered = rows.filter((row) => {
     const label = (decisions[row.id] || {}).label || "";
@@ -159,7 +175,7 @@ async function submitDecision(row, label) {
     if (!response.ok) throw new Error(await response.text());
     $("saveStatus").textContent = "Saved";
     $("saveStatus").className = "save-status ok";
-    next();
+    await assignNext();
   } catch (error) {
     $("saveStatus").textContent = "Saved locally, server save failed";
     $("saveStatus").className = "save-status err";
@@ -167,7 +183,60 @@ async function submitDecision(row, label) {
   }
 }
 
+async function assignNext(skipCurrent = false) {
+  const currentId = filtered[current]?.id || "";
+  const candidateIds = rows
+    .filter((row) => !((decisions[row.id] || {}).label))
+    .filter((row) => !(skipCurrent && row.id === currentId))
+    .map((row) => row.id);
+  if (!candidateIds.length) {
+    applyFilters();
+    $("saveStatus").textContent = "No local open samples";
+    $("saveStatus").className = "save-status ok";
+    return;
+  }
+
+  $("saveStatus").textContent = "Finding next unclaimed sample...";
+  $("saveStatus").className = "save-status";
+  try {
+    const response = await fetch(`${API}/claims/next`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        dataset: meta.dataset,
+        reviewer_name: reviewer.name,
+        reviewer_email: reviewer.email,
+        candidate_ids: candidateIds,
+        ttl_minutes: 120,
+      }),
+    });
+    if (!response.ok) throw new Error(await response.text());
+    const payload = await response.json();
+    if (!payload.entry_id) {
+      $("saveStatus").textContent = "No unclaimed server samples right now";
+      $("saveStatus").className = "save-status ok";
+      return;
+    }
+    setCurrentById(payload.entry_id);
+    $("saveStatus").textContent = payload.reclaimed ? "Resumed claimed sample" : "Claimed next sample";
+    $("saveStatus").className = "save-status ok";
+  } catch (error) {
+    console.error(error);
+    $("saveStatus").textContent = "Claim failed, using local next";
+    $("saveStatus").className = "save-status err";
+    nextLocal();
+  }
+}
+
 function next() {
+  if (reviewer.name) {
+    assignNext(true);
+    return;
+  }
+  nextLocal();
+}
+
+function nextLocal() {
   if (!filtered.length) return;
   current = Math.min(current + 1, filtered.length - 1);
   renderList();
@@ -201,6 +270,7 @@ function start() {
   saveLocal();
   $("setup").classList.add("collapsed");
   applyFilters();
+  assignNext();
 }
 
 function init() {

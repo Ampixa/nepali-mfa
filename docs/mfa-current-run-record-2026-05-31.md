@@ -401,6 +401,9 @@ Public review deployment update, 2026-05-31 12:06 NPT:
 - private ID mapping is stored outside the public web root on the deployment
   host;
 - review decisions save server-side through `/mfa/api/decisions`;
+- reviewers get server-side sample claims through `/mfa/api/claims/next`;
+- claims skip chunks already decided by any reviewer and skip chunks claimed by
+  another reviewer in the last two hours;
 - stats endpoint verified:
   `/mfa/api/stats?dataset=mfa_source_review_public_20260531`;
 - a smoke write to dataset `mfa_review_smoke` succeeded.

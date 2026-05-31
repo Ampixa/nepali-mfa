@@ -193,7 +193,9 @@ Source-review outputs:
 
 Important: static local dashboards still store labels in the browser until the
 reviewer exports TSV. The public dashboard on `tts.ampixa.com` writes decisions
-to the review API immediately and can be exported centrally.
+to the review API immediately and can be exported centrally. The public
+dashboard also claims the next unreviewed sample on the server, so multiple
+reviewers should not be assigned the same chunk during normal Start/Next review.
 
 ## Output Tiers
 
@@ -265,6 +267,8 @@ GET /mfa/api/decisions/export.tsv?dataset=mfa_source_review_public_20260531&toke
 ```
 
 The admin token is stored only in the deployment host environment file.
+Sample claims are temporary and expire after two hours, so abandoned rows return
+to the review pool.
 
 ## CLI Reference
 
