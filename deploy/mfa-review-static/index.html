@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>tts.ampixa / MFA review</title>
+  <link rel="icon" type="image/png" href="/assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="queue">
+      <header class="queue-head">
+        <div>
+          <a href="/" class="brand">tts.ampixa</a>
+          <h1>MFA audio review</h1>
+          <p id="summary">loading...</p>
+        </div>
+        <button id="refreshStats" class="button">Stats</button>
+      </header>
+      <section id="setup" class="setup">
+        <label>Name
+          <input id="reviewerName" autocomplete="name" placeholder="required">
+        </label>
+        <label>Email
+          <input id="reviewerEmail" autocomplete="email" placeholder="optional">
+        </label>
+        <button id="startReview" class="button primary">Start</button>
+      </section>
+      <div class="filters">
+        <button class="status active" data-status="all">All</button>
+        <button class="status" data-status="open">Open</button>
+        <button class="status" data-status="done">Done</button>
+        <button class="status" data-status="bad">Bad</button>
+      </div>
+      <div id="list" class="sample-list"></div>
+    </aside>
+    <main class="review">
+      <section class="topbar">
+        <div>
+          <p id="eyebrow" class="eyebrow"></p>
+          <h2 id="title">Enter your name to start.</h2>
+        </div>
+        <div class="nav">
+          <button id="prev" class="button">Prev</button>
+          <button id="next" class="button">Next</button>
+        </div>
+      </section>
+      <section class="audio-row">
+        <audio id="audio" controls preload="metadata"></audio>
+        <label class="speed">Speed
+          <select id="speed">
+            <option value="0.8">0.8x</option>
+            <option value="1" selected>1.0x</option>
+            <option value="1.15">1.15x</option>
+            <option value="1.3">1.3x</option>
+          </select>
+        </label>
+      </section>
+      <section id="metrics" class="metrics"></section>
+      <section class="text-panel">
+        <article>
+          <header>Transcript</header>
+          <p id="transcript"></p>
+        </article>
+      </section>
+      <section class="label-panel">
+        <div id="labels" class="labels"></div>
+        <textarea id="notes" placeholder="Notes"></textarea>
+      </section>
+      <p id="saveStatus" class="save-status"></p>
+    </main>
+  </div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

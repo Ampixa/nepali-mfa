@@ -1,0 +1,29 @@
+services:
+  mfa-review-api:
+    build: .
+    container_name: mfa-review-api
+    restart: unless-stopped
+    environment:
+      - DATABASE_PATH=/app/data/mfa_review.db
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+    volumes:
+      - mfa-review-data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mfa-review-api.rule=Host(`tts.ampixa.com`) && PathPrefix(`/mfa/api`)"
+      - "traefik.http.routers.mfa-review-api.entrypoints=websecure"
+      - "traefik.http.routers.mfa-review-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mfa-review-api.priority=20"
+      - "traefik.http.middlewares.mfa-review-api-strip.stripprefix.prefixes=/mfa"
+      - "traefik.http.routers.mfa-review-api.middlewares=mfa-review-api-strip"
+      - "traefik.http.services.mfa-review-api.loadbalancer.server.port=8003"
+    networks:
+      - traefik-proxy
+
+volumes:
+  mfa-review-data:
+
+networks:
+  traefik-proxy:
+    external: true
+    name: traefik-proxy

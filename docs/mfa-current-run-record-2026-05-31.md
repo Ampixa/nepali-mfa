@@ -389,9 +389,28 @@ Important browser-state caveat:
 - after export, the TSV must be copied back to the M4 or local repo before the
   label applier can count reviewed/clean/noisy rows.
 
+Public review deployment update, 2026-05-31 12:06 NPT:
+
+- public URL: `https://tts.ampixa.com/mfa/review/`;
+- dataset: `mfa_source_review_public_20260531`;
+- rows: `1000`;
+- review hours: `3.6438h`;
+- audio package: MP3, mono `16 kHz`, `32 kbps`;
+- compressed public audio size: about `53 MB`, down from about `402 MB` raw;
+- public row IDs are anonymized as `mfa_0001` through `mfa_1000`;
+- private ID mapping is stored outside the public web root on the deployment
+  host;
+- review decisions save server-side through `/mfa/api/decisions`;
+- stats endpoint verified:
+  `/mfa/api/stats?dataset=mfa_source_review_public_20260531`;
+- a smoke write to dataset `mfa_review_smoke` succeeded.
+
+The public dashboard removes the old localStorage-only progress problem for new
+reviewers. Local dashboards still need manual TSV export.
+
 Current review/export status as of 2026-05-31:
 
-- no exported podcast source `source_review.tsv` was found on the M4;
+- no source-review TSV has been applied to the MFA tier outputs yet;
 - no applied output exists yet at:
 
 ```text

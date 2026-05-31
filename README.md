@@ -22,7 +22,8 @@ As of the current run record:
 - podcast source rows are being reviewed as candidate-clean MFA seed data;
 - background-audio rows are treated as ASR noisy/robustness data, not clean MFA
   seed data;
-- browser review progress is not server-visible until `Export TSV` is clicked.
+- the public source-review dashboard now saves labels server-side on
+  `tts.ampixa.com`.
 
 Start here for the full operational record:
 
@@ -190,8 +191,9 @@ Source-review outputs:
 - `reviewed_all.jsonl`
 - `summary.json`
 
-Important: review labels live in the browser's localStorage until the reviewer
-exports the TSV. The server cannot count reviewed rows before that export.
+Important: static local dashboards still store labels in the browser until the
+reviewer exports TSV. The public dashboard on `tts.ampixa.com` writes decisions
+to the review API immediately and can be exported centrally.
 
 ## Output Tiers
 
@@ -232,26 +234,37 @@ other speakers, TV/radio, and non-transcribed start/end tails.
 
 ## Current Active Dashboard
 
-podcast source candidate-clean dashboard:
+Public source-review dashboard:
 
 ```text
-http://100.109.18.109:8771/
+https://tts.ampixa.com/mfa/review/
 ```
 
-Runtime dashboard path:
+Current public dataset:
 
 ```text
-/Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard
+mfa_source_review_public_20260531
 ```
 
 Rows:
 
-- `1000` source chunks
+- `1000` anonymized source chunks
 - `3.6438h`
 - `0` missing audio
+- MP3 review audio, mono `16 kHz`, `32 kbps`
 
 Use this dashboard to decide which source chunks become clean MFA seed
-candidates.
+candidates. Public row IDs are anonymized. The private mapping from public ID to
+original source IDs is kept outside the web root on the deployment host.
+
+Server-side decisions are available through the review API:
+
+```text
+GET /mfa/api/stats?dataset=mfa_source_review_public_20260531
+GET /mfa/api/decisions/export.tsv?dataset=mfa_source_review_public_20260531&token=<admin-token>
+```
+
+The admin token is stored only in the deployment host environment file.
 
 ## CLI Reference
 
