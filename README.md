@@ -69,6 +69,7 @@ Output tiers:
 
 Start with:
 
+- `docs/mfa-current-run-record-2026-05-31.md`
 - `docs/mfa-production-clean-runbook-2026-05-17.md`
 - `docs/mfa-export-status-2026-05-16.md`
 - `docs/mfa-background-audio-probe-2026-05-17.md`
