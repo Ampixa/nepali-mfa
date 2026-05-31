@@ -16,8 +16,8 @@ def test_build_source_review_dashboard_filters_source_and_links_audio(tmp_path: 
             for row in [
                 {
                     "id": "keep-me",
-                    "source": "sushant",
-                    "slice_source": "sushant_source_reviewed_le30",
+                    "source": "podcast",
+                    "slice_source": "podcast_source_reviewed_le30",
                     "audio_mfa": str(audio),
                     "transcript": "नमस्ते",
                     "duration_sec": 1.25,
@@ -43,9 +43,9 @@ def test_build_source_review_dashboard_filters_source_and_links_audio(tmp_path: 
         "--out-dir",
         str(out),
         "--source",
-        "sushant",
+        "podcast",
         "--dataset",
-        "sushant_test",
+        "podcast_test",
     ]) == 0
 
     summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))

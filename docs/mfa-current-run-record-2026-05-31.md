@@ -58,7 +58,7 @@ Important M4 paths:
 | Mixed 5000 trained MFA model | `/Users/cdjk/asr_mfa_training_20260516/mixed_5000_train_m4/nepali_mixed_5000_acoustic.zip` |
 | Held-out alignment output | `/Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/aligned` |
 | Held-out failure dashboard | `/Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/failure_dashboard` |
-| Sushant source dashboard | `/Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard` |
+| source dashboard | source-specific runtime dashboard path on the M4, not tracked in Git |
 
 Important 4TB/export paths:
 
@@ -78,7 +78,7 @@ The full MFA-prep export completed on 2026-05-16:
 | Source | Rows | Source hours |
 |---|---:|---:|
 | `slr54_gold_v1` | 157871 | 154.446 |
-| `sushant_source_reviewed_le30` | 10214 | 37.102 |
+| `podcast_source_reviewed_le30` | 10214 | 37.102 |
 | `youtube_caption_wordtimed_fixed120` | 35150 | 69.660 |
 | `chirp2_cer1` | 43640 | 214.503 |
 | `chirp2_gt1_reviewed` | 6940 | 33.827 |
@@ -90,7 +90,7 @@ Current source policy:
 | Source | Current role |
 |---|---|
 | `slr54_gold_v1` | Clean read-speech anchor; useful for MFA seed, but domain-limited. |
-| `sushant_source_reviewed_le30` | Candidate clean podcast speech; needs source review export before promotion. |
+| `podcast_source_reviewed_le30` | Candidate clean podcast speech; needs source review export before promotion. |
 | `youtube_caption_wordtimed_fixed120` | Potential ASR source; chunking/caption alignment needs strict validation. |
 | `chirp2_cer1` | Strong ASR transcript source; likely usable, but not automatically clean MFA seed. |
 | `chirp2_gt1_reviewed` | Weakest held-out MFA coverage; review/repair before trusting. |
@@ -157,7 +157,7 @@ Composition:
 | `chirp2_cer1` | 1000 |
 | `chirp2_gt1_reviewed` | 1000 |
 | `slr54_gold_v1` | 1000 |
-| `sushant_source_reviewed_le30` | 1000 |
+| `podcast_source_reviewed_le30` | 1000 |
 | `youtube_caption_wordtimed_fixed120` | 1000 |
 
 Training result:
@@ -174,7 +174,7 @@ Training-slice coverage:
 | `chirp2_cer1` | 984 | 1000 | 98.4% |
 | `chirp2_gt1_reviewed` | 947 | 1000 | 94.7% |
 | `slr54_gold_v1` | 1000 | 1000 | 100.0% |
-| `sushant_source_reviewed_le30` | 1000 | 1000 | 100.0% |
+| `podcast_source_reviewed_le30` | 1000 | 1000 | 100.0% |
 | `youtube_caption_wordtimed_fixed120` | 991 | 1000 | 99.1% |
 
 Use:
@@ -216,12 +216,12 @@ Coverage by source:
 | `chirp2_cer1` | 189 | 200 | 94.5% |
 | `chirp2_gt1_reviewed` | 159 | 200 | 79.5% |
 | `slr54_gold_v1` | 200 | 200 | 100.0% |
-| `sushant_source_reviewed_le30` | 199 | 200 | 99.5% |
+| `podcast_source_reviewed_le30` | 199 | 200 | 99.5% |
 | `youtube_caption_wordtimed_fixed120` | 187 | 200 | 93.5% |
 
 Interpretation:
 
-- `slr54` and `sushant` generalize well.
+- `slr54` and `podcast_source` generalize well.
 - `youtube_caption_wordtimed_fixed120` is promising but still needs chunk/text
   review.
 - `chirp2_gt1_reviewed` is the main weak spot for this model.
@@ -266,7 +266,7 @@ By source:
 | `chirp2_cer1` | 200 | 163 | 37 |
 | `chirp2_gt1_reviewed` | 200 | 128 | 72 |
 | `slr54_gold_v1` | 200 | 190 | 10 |
-| `sushant_source_reviewed_le30` | 200 | 178 | 22 |
+| `podcast_source_reviewed_le30` | 200 | 178 | 22 |
 | `youtube_caption_wordtimed_fixed120` | 200 | 93 | 107 |
 
 Important caveat:
@@ -337,7 +337,7 @@ M4 copy of the bulk TSV:
 /Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/failure_dashboard/mixed_heldout_1000_all_background_audio_review.tsv
 ```
 
-## Sushant Source Candidate-Clean Dashboard
+## Source Candidate-Clean Dashboard
 
 Dashboard:
 
@@ -348,7 +348,7 @@ http://100.109.18.109:8771/
 Dashboard path:
 
 ```text
-/Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard
+/Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard
 ```
 
 Committed CLI:
@@ -369,8 +369,8 @@ Dashboard summary:
 - `rows_missing_audio`: `0`
 - `rows_review`: `1000`
 - `review_hours`: `3.6438`
-- `source`: `sushant`
-- `slice_source`: `sushant_source_reviewed_le30`
+- `source`: `podcast_source`
+- `slice_source`: `podcast_source_reviewed_le30`
 
 The dashboard serves audio through symlinks and byte-range HTTP. It does not
 duplicate the wav files.
@@ -391,14 +391,14 @@ Important browser-state caveat:
 
 Current review/export status as of 2026-05-31:
 
-- no exported Sushant `source_review.tsv` was found on the M4;
+- no exported podcast source `source_review.tsv` was found on the M4;
 - no applied output exists yet at:
 
 ```text
-/Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_reviewed
+/Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_reviewed
 ```
 
-## Sushant Label Promotion
+## Source Label Promotion
 
 Committed CLI:
 
@@ -410,9 +410,9 @@ Apply a browser-exported TSV:
 
 ```bash
 nepali-mfa-apply-source-review-labels \
-  --manifest /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard/source_review_manifest.jsonl \
-  --review-tsv /path/to/sushant_candidate_clean_20260527_source_review.tsv \
-  --out-dir /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_reviewed
+  --manifest /Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard/source_review_manifest.jsonl \
+  --review-tsv /path/to/source_candidate_clean_YYYYMMDD_source_review.tsv \
+  --out-dir /Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_reviewed
 ```
 
 Outputs:
@@ -431,7 +431,7 @@ Source-review policy:
 | Label | Split | Notes |
 |---|---|---|
 | `keep` | `mfa_clean_seed_candidate` | Clean source candidate. |
-| `minor` | `mfa_clean_seed_candidate` | Accepted for source review because Sushant is likely clean; inspect notes before final MFA v2 seed. |
+| `minor` | `mfa_clean_seed_candidate` | Accepted for source review because podcast source is likely clean; inspect notes before final MFA v2 seed. |
 | `background_audio` | `asr_noisy_background` | Correct text can still train ASR robustness, but not clean MFA seed. |
 | `text_bad` | `rejected` | Do not train unless repaired. |
 | `audio_bad` | `rejected` | Do not train. |
@@ -440,7 +440,7 @@ Source-review policy:
 
 Smoke result:
 
-- a four-label smoke TSV matched four Sushant rows;
+- a four-label smoke TSV matched four source rows;
 - split result: `2` clean candidates, `1` noisy background, `1` rejected,
   `996` unlabeled needs-review rows;
 - this verified the applier against the live dashboard manifest.
@@ -542,12 +542,12 @@ Latest local result before this document:
 
 ## What Is Not Done Yet
 
-1. The Sushant review has not been exported to TSV, so reviewed count and clean
+1. The source review has not been exported to TSV, so reviewed count and clean
    hours are not yet known server-side.
-2. Sushant clean candidates have not been promoted into
-   `sushant_candidate_clean_reviewed`.
+2. source clean candidates have not been promoted into
+   `source_candidate_clean_reviewed`.
 3. A clean MFA v2 model has not been trained from reviewed SLR54 + reviewed
-   Sushant.
+   podcast source.
 4. The full 509h export has not been re-tiered with the improved label policy.
 5. YouTube caption rows still need stricter chunk/text validation before they
    can be treated as high-confidence clean data.
@@ -560,13 +560,13 @@ Latest local result before this document:
 
 ## Next Exact Steps
 
-1. Finish Sushant source review in the browser.
+1. Finish source review in the browser.
 2. Click `Export TSV`.
 3. Copy the exported TSV to the M4 or local repo.
 4. Run `nepali-mfa-apply-source-review-labels`.
 5. Inspect `summary.json` for clean/noisy/rejected hours.
 6. Build a clean seed from:
-   - reviewed Sushant `keep` / `minor`;
+   - reviewed podcast source `keep` / `minor`;
    - SLR54 clean rows;
    - reviewed number repairs where applicable.
 7. Train MFA v2 on the clean seed.
@@ -581,8 +581,7 @@ Latest local result before this document:
 
 - Do not claim the current MFA model is production final.
 - Do not claim `machine_pass_candidates` are human-clean.
-- Do not claim Sushant has been reviewed until a TSV export is applied.
+- Do not claim podcast source has been reviewed until a TSV export is applied.
 - Do not claim background-audio detection is automatic or solved.
 - Do not train clean MFA v2 from YouTube/Chirp2/Herne-Katha-style noisy data
   without review or source-specific filtering.
-

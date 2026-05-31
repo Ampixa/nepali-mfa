@@ -15,7 +15,7 @@ Held-out result:
 
 - held-out rows: 1000
 - TextGrids exported: 934
-- strongest domains: SLR54, Sushant, YouTube fixed120
+- strongest domains: SLR54, podcast source, YouTube fixed120
 - weakest reviewed source: `chirp2_gt1_reviewed`
 
 This is good enough for triage and training-data gating. It is not a final
@@ -122,7 +122,7 @@ correct. They should be excluded or downweighted for the clean MFA seed set.
 Train the next MFA model from a larger reviewed seed:
 
 - start with `mfa_clean_seed.jsonl` from held-out and source reviews;
-- add clean SLR54 and clean Sushant rows;
+- add clean SLR54 and clean source rows;
 - exclude/downweight `BG audio`;
 - repair reviewed `Number` rows;
 - keep source-balanced sampling so Chirp2/YouTube do not dominate.

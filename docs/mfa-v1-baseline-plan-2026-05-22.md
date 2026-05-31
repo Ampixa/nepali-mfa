@@ -55,7 +55,7 @@ By source:
 | `chirp2_cer1` | 200 | 163 | 37 |
 | `chirp2_gt1_reviewed` | 200 | 128 | 72 |
 | `slr54_gold_v1` | 200 | 190 | 10 |
-| `sushant_source_reviewed_le30` | 200 | 178 | 22 |
+| `podcast_source_reviewed_le30` | 200 | 178 | 22 |
 | `youtube_caption_wordtimed_fixed120` | 200 | 93 | 107 |
 
 ## Local Artifacts
@@ -162,13 +162,13 @@ exported TSV is stored on the M4 at:
 /Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/failure_dashboard/mixed_heldout_1000_all_background_audio_review.tsv
 ```
 
-## 2026-05-27 Sushant Source Candidate-Clean Review
+## 2026-05-27 Source Candidate-Clean Review
 
 We added `nepali-mfa-build-source-review-dashboard` for source-level review
 outside the failure-dashboard flow. This is for checking likely clean podcast
 sources before promoting them into a clean MFA seed tier.
 
-Generated Sushant KC dashboard on the M4:
+Generated podcast source dashboard on the M4:
 
 ```text
 http://100.109.18.109:8771/
@@ -183,7 +183,7 @@ Inputs:
 Output directory:
 
 ```text
-/Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard
+/Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard
 ```
 
 Summary:
@@ -192,15 +192,15 @@ Summary:
 - `rows_missing_audio`: `0`
 - `rows_review`: `1000`
 - `review_hours`: `3.6438`
-- `source`: `sushant`
-- `slice_source`: `sushant_source_reviewed_le30`
+- `source`: `podcast_source`
+- `slice_source`: `podcast_source_reviewed_le30`
 
 The dashboard serves audio through symlinks, so it does not duplicate the wav
 files. The server uses byte-range support and is running in the background via:
 
 ```bash
 python3 /Users/cdjk/asr_mfa_scripts/serve_static_range.py \
-  --directory /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard \
+  --directory /Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard \
   --port 8771 \
   --bind 0.0.0.0
 ```
@@ -216,9 +216,9 @@ When the browser exports the TSV, apply the labels with:
 
 ```bash
 nepali-mfa-apply-source-review-labels \
-  --manifest /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard/source_review_manifest.jsonl \
-  --review-tsv /path/to/sushant_candidate_clean_20260527_source_review.tsv \
-  --out-dir /Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_reviewed
+  --manifest /Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard/source_review_manifest.jsonl \
+  --review-tsv /path/to/source_candidate_clean_YYYYMMDD_source_review.tsv \
+  --out-dir /Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_reviewed
 ```
 
 This writes:

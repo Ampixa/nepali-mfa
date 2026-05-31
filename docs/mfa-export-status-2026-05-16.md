@@ -14,7 +14,7 @@ The full MFA-prep export completed successfully.
 | Source | Rows | Source hours |
 |---|---:|---:|
 | `slr54_gold_v1` | 157871 | 154.446 |
-| `sushant_source_reviewed_le30` | 10214 | 37.102 |
+| `podcast_source_reviewed_le30` | 10214 | 37.102 |
 | `youtube_caption_wordtimed_fixed120` | 35150 | 69.660 |
 | `chirp2_cer1` | 43640 | 214.503 |
 | `chirp2_gt1_reviewed` | 6940 | 33.827 |
@@ -239,7 +239,7 @@ Coverage by source:
 | `chirp2_cer1` | 32 | 50 | 64.0% |
 | `chirp2_gt1_reviewed` | 33 | 50 | 66.0% |
 | `slr54_gold_v1` | 50 | 50 | 100.0% |
-| `sushant_source_reviewed_le30` | 41 | 50 | 82.0% |
+| `podcast_source_reviewed_le30` | 41 | 50 | 82.0% |
 | `youtube_caption_wordtimed_fixed120` | 28 | 50 | 56.0% |
 
 The SLR54 model warned that six dictionary pronunciations contained phones not
@@ -285,7 +285,7 @@ Coverage by source:
 | `chirp2_cer1` | 50 | 50 | 100.0% |
 | `chirp2_gt1_reviewed` | 50 | 50 | 100.0% |
 | `slr54_gold_v1` | 50 | 50 | 100.0% |
-| `sushant_source_reviewed_le30` | 50 | 50 | 100.0% |
+| `podcast_source_reviewed_le30` | 50 | 50 | 100.0% |
 | `youtube_caption_wordtimed_fixed120` | 50 | 50 | 100.0% |
 
 Metric comparison:
@@ -298,7 +298,7 @@ Metric comparison:
 Decision:
 
 - The SLR54 5.3h model is a useful gold-read-speech smoke artifact, but it is
-  not a sufficient baseline aligner for Chirp2, Sushant, and YouTube data.
+  not a sufficient baseline aligner for Chirp2, podcast source, and YouTube data.
 - The mixed-source model proves that domain coverage matters and that the mixed
   corpus is alignable with our current dictionary/normalization path.
 - The next serious baseline should be a larger mixed-source MFA model, not a
@@ -333,7 +333,7 @@ Source composition:
 | `chirp2_cer1` | 1000 |
 | `chirp2_gt1_reviewed` | 1000 |
 | `slr54_gold_v1` | 1000 |
-| `sushant_source_reviewed_le30` | 1000 |
+| `podcast_source_reviewed_le30` | 1000 |
 | `youtube_caption_wordtimed_fixed120` | 1000 |
 
 The slice was copied to the M4 with audio symlinks dereferenced:
@@ -392,7 +392,7 @@ Coverage by source:
 | `chirp2_cer1` | 984 | 1000 | 98.4% |
 | `chirp2_gt1_reviewed` | 947 | 1000 | 94.7% |
 | `slr54_gold_v1` | 1000 | 1000 | 100.0% |
-| `sushant_source_reviewed_le30` | 1000 | 1000 | 100.0% |
+| `podcast_source_reviewed_le30` | 1000 | 1000 | 100.0% |
 | `youtube_caption_wordtimed_fixed120` | 991 | 1000 | 99.1% |
 
 Alignment-analysis summary:
@@ -408,7 +408,7 @@ Decision:
 
 - This is the first useful mixed-domain MFA baseline.
 - It is substantially stronger than the SLR54-only aligner for Chirp2,
-  Sushant, and YouTube data.
+  podcast source, and YouTube data.
 - It is not yet a final release model because it was evaluated on the same
   slice it trained on. Next step is held-out mixed validation.
 
@@ -474,7 +474,7 @@ Coverage by source:
 | `chirp2_cer1` | 189 | 200 | 94.5% |
 | `chirp2_gt1_reviewed` | 159 | 200 | 79.5% |
 | `slr54_gold_v1` | 200 | 200 | 100.0% |
-| `sushant_source_reviewed_le30` | 199 | 200 | 99.5% |
+| `podcast_source_reviewed_le30` | 199 | 200 | 99.5% |
 | `youtube_caption_wordtimed_fixed120` | 187 | 200 | 93.5% |
 
 Alignment-analysis summary:
@@ -488,7 +488,7 @@ Alignment-analysis summary:
 
 Decision:
 
-- The mixed 5000 model generalizes well to held-out `slr54`, `sushant`, and
+- The mixed 5000 model generalizes well to held-out `slr54`, `podcast_source`, and
   `youtube_caption_wordtimed_fixed120`.
 - `chirp2_cer1` is acceptable but still has failures worth reviewing.
 - `chirp2_gt1_reviewed` is not strong enough yet at 79.5% held-out TextGrid
@@ -531,7 +531,7 @@ Review rows by source:
 | `youtube_caption_wordtimed_fixed120` | 107 |
 | `chirp2_gt1_reviewed` | 72 |
 | `chirp2_cer1` | 37 |
-| `sushant_source_reviewed_le30` | 22 |
+| `podcast_source_reviewed_le30` | 22 |
 | `slr54_gold_v1` | 10 |
 
 Generated audit files:
@@ -562,9 +562,9 @@ Quick non-listening audit:
   mode.
 - Missing TextGrid rows by source: `chirp2_gt1_reviewed` 41,
   `youtube_caption_wordtimed_fixed120` 13, `chirp2_cer1` 11,
-  `sushant_source_reviewed_le30` 1.
+  `podcast_source_reviewed_le30` 1.
 - Top duration-deviation outliers include YouTube ad/news fragments and one
-  Sushant 26.18s segment. These are good candidates for stricter duration,
+  source 26.18s segment. These are good candidates for stricter duration,
   ad/music, or phrase-boundary filtering.
 - Missing-row OOV words are mostly one-off lexical coverage issues rather than
   one repeated bad dictionary entry, so the immediate fix is review and better

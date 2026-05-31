@@ -16,10 +16,10 @@ benchmarking, and downstream ASR recipes consume the manifests produced here.
 As of the current run record:
 
 - about `509.5h` of MFA-prepared source data has been exported across SLR54,
-  Sushant podcast, YouTube captions, Chirp2 CER<=1, and Chirp2 reviewed data;
+  podcast source, YouTube captions, Chirp2 CER<=1, and Chirp2 reviewed data;
 - the current best MFA baseline is a mixed-source 5000-row acoustic model;
 - held-out mixed validation exported `934 / 1000` TextGrids;
-- Sushant podcast rows are being reviewed as candidate-clean MFA seed data;
+- podcast source rows are being reviewed as candidate-clean MFA seed data;
 - background-audio rows are treated as ASR noisy/robustness data, not clean MFA
   seed data;
 - browser review progress is not server-visible until `Export TSV` is clicked.
@@ -160,15 +160,15 @@ nepali-mfa-apply-review-labels \
 
 ## Source Review Workflow
 
-For a source that is likely clean, such as Sushant podcast audio, use the
+For a source that is likely clean, such as podcast source audio, use the
 source-review dashboard instead of the failure-dashboard flow:
 
 ```bash
 nepali-mfa-build-source-review-dashboard \
   --manifest /path/to/mixed_5000/mfa_manifest.jsonl \
-  --out-dir /path/to/sushant_candidate_clean_dashboard \
-  --source sushant \
-  --dataset sushant_candidate_clean_20260527 \
+  --out-dir /path/to/source_candidate_clean_dashboard \
+  --source <source_id> \
+  --dataset source_candidate_clean_YYYYMMDD \
   --limit 0
 ```
 
@@ -176,9 +176,9 @@ After the reviewer clicks `Export TSV`, apply labels:
 
 ```bash
 nepali-mfa-apply-source-review-labels \
-  --manifest /path/to/sushant_candidate_clean_dashboard/source_review_manifest.jsonl \
-  --review-tsv /path/to/sushant_candidate_clean_20260527_source_review.tsv \
-  --out-dir /path/to/sushant_candidate_clean_reviewed
+  --manifest /path/to/source_candidate_clean_dashboard/source_review_manifest.jsonl \
+  --review-tsv /path/to/source_candidate_clean_YYYYMMDD_source_review.tsv \
+  --out-dir /path/to/source_candidate_clean_reviewed
 ```
 
 Source-review outputs:
@@ -232,25 +232,25 @@ other speakers, TV/radio, and non-transcribed start/end tails.
 
 ## Current Active Dashboard
 
-Sushant candidate-clean dashboard:
+podcast source candidate-clean dashboard:
 
 ```text
 http://100.109.18.109:8771/
 ```
 
-Current dashboard path:
+Runtime dashboard path:
 
 ```text
-/Users/cdjk/asr_mfa_training_20260527/sushant_candidate_clean_dashboard
+/Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_dashboard
 ```
 
 Rows:
 
-- `1000` Sushant chunks
+- `1000` source chunks
 - `3.6438h`
 - `0` missing audio
 
-Use this dashboard to decide which Sushant chunks become clean MFA seed
+Use this dashboard to decide which source chunks become clean MFA seed
 candidates.
 
 ## CLI Reference
@@ -283,11 +283,10 @@ Read in this order:
 
 ## Next Work
 
-1. Finish Sushant source review and export TSV.
+1. Finish source review and export TSV.
 2. Apply `nepali-mfa-apply-source-review-labels`.
 3. Inspect clean/noisy/rejected hours.
-4. Build a clean MFA seed from reviewed Sushant plus clean SLR54.
+4. Build a clean MFA seed from reviewed podcast source plus clean SLR54.
 5. Train MFA v2 on clean seed.
 6. Re-align held-out mixed 1000 and compare against the current `934 / 1000`
    TextGrid baseline.
-

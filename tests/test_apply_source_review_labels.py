@@ -29,10 +29,10 @@ def test_apply_source_review_labels_promotes_keep_and_minor_to_clean_candidate(t
     review = tmp_path / "source_review.tsv"
     review.write_text(
         "id\tsource\tslice_source\tduration_sec\toov_count\tlabel\tnotes\ttranscript\taudio_source\n"
-        "keep1\tsushant\tsushant_source_reviewed_le30\t10\t0\tkeep\t\tठिक छ\t/a.wav\n"
-        "minor1\tsushant\tsushant_source_reviewed_le30\t20\t0\tminor\tbreath cut\tसानो समस्या\t/b.wav\n"
-        "bg1\tsushant\tsushant_source_reviewed_le30\t30\t0\tbackground_audio\troom bed\tपछाडि आवाज\t/c.wav\n"
-        "textbad1\tsushant\tsushant_source_reviewed_le30\t40\t0\ttext_bad\twrong words\tगलत पाठ\t/d.wav\n",
+        "keep1\tpodcast\tpodcast_source_reviewed_le30\t10\t0\tkeep\t\tठिक छ\t/a.wav\n"
+        "minor1\tpodcast\tpodcast_source_reviewed_le30\t20\t0\tminor\tbreath cut\tसानो समस्या\t/b.wav\n"
+        "bg1\tpodcast\tpodcast_source_reviewed_le30\t30\t0\tbackground_audio\troom bed\tपछाडि आवाज\t/c.wav\n"
+        "textbad1\tpodcast\tpodcast_source_reviewed_le30\t40\t0\ttext_bad\twrong words\tगलत पाठ\t/d.wav\n",
         encoding="utf-8",
     )
     out = tmp_path / "out"
