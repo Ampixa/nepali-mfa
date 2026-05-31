@@ -1,11 +1,11 @@
 const API = "/mfa/api";
 const LABELS = [
-  ["keep", "Keep"],
-  ["minor", "Minor"],
-  ["background_audio", "BG audio"],
-  ["text_bad", "Text bad"],
-  ["audio_bad", "Audio bad"],
-  ["unsure", "Unsure"],
+  ["keep", "Keep", "Clean"],
+  ["minor", "Minor", "Usable"],
+  ["background_audio", "BG audio", "Noisy"],
+  ["text_bad", "Text bad", "Reject"],
+  ["audio_bad", "Audio bad", "Reject"],
+  ["unsure", "Unsure", "Later"],
 ];
 
 const rows = window.REVIEW_ROWS || [];
@@ -67,6 +67,20 @@ function badLabel(label) {
   return ["background_audio", "text_bad", "audio_bad"].includes(label);
 }
 
+function counts() {
+  const labels = rows.map((row) => (decisions[row.id] || {}).label || "");
+  const byLabel = {};
+  for (const label of labels) {
+    if (!label) continue;
+    byLabel[label] = (byLabel[label] || 0) + 1;
+  }
+  const done = labels.filter(Boolean).length;
+  const bad = labels.filter(badLabel).length;
+  const open = Math.max(rows.length - done, 0);
+  const hours = rows.reduce((acc, row) => acc + (Number(row.duration_sec) || 0), 0) / 3600;
+  return {done, bad, open, hours, byLabel};
+}
+
 function setStatusFilter(value) {
   statusFilter = value;
   document.querySelectorAll(".status").forEach((button) => {
@@ -97,11 +111,15 @@ function applyFilters() {
 }
 
 function renderSummary(extra = "") {
-  const labels = rows.map((row) => (decisions[row.id] || {}).label || "");
-  const done = labels.filter(Boolean).length;
-  const bad = labels.filter(badLabel).length;
-  const hours = rows.reduce((acc, row) => acc + (Number(row.duration_sec) || 0), 0) / 3600;
-  $("summary").textContent = `${done}/${rows.length} local, ${bad} bad, ${fmt(hours, 2)}h${extra ? " | " + extra : ""}`;
+  const {done, bad, open, hours, byLabel} = counts();
+  $("summary").textContent = `${done}/${rows.length} reviewed, ${open} open, ${bad} noisy/reject, ${fmt(hours, 2)}h${extra ? " | " + extra : ""}`;
+  const pct = rows.length ? Math.round((done / rows.length) * 100) : 0;
+  $("progressFill").style.width = `${pct}%`;
+  $("progressFill").textContent = pct ? `${pct}%` : "";
+  $("labelStats").innerHTML = LABELS
+    .filter(([value]) => byLabel[value])
+    .map(([value, label]) => `<span class="stat-chip ${value}">${escapeHtml(label)} ${byLabel[value]}</span>`)
+    .join("");
 }
 
 function renderList() {
@@ -110,12 +128,13 @@ function renderList() {
     const label = (decisions[row.id] || {}).label || "open";
     const active = idx === current ? " active" : "";
     const bad = badLabel(label) ? " bad" : "";
+    const done = label !== "open" ? " done" : "";
     return `<button class="sample${active}" data-index="${idx}">
       <span class="sample-title">${escapeHtml(row.id)}</span>
       <span class="sample-text">${escapeHtml(row.transcript)}</span>
       <span class="sample-meta">
         <span>${fmt(row.duration_sec, 1)}s</span>
-        <span class="pill${label !== "open" ? " done" : ""}${bad}">${escapeHtml(label)}</span>
+        <span class="pill${done}${bad} ${escapeHtml(label)}">${escapeHtml(label)}</span>
       </span>
     </button>`;
   }).join("");
@@ -141,7 +160,7 @@ function renderCurrent() {
   const row = filtered[current];
   const decision = decisions[row.id] || {};
   $("title").textContent = row.id;
-  $("eyebrow").textContent = `${current + 1}/${filtered.length} | ${meta.dataset}`;
+  $("eyebrow").textContent = `${current + 1}/${filtered.length} in ${statusFilter} queue`;
   $("audio").src = row.audio;
   $("audio").playbackRate = Number($("speed").value);
   $("metrics").innerHTML = [
@@ -151,11 +170,15 @@ function renderCurrent() {
   $("transcript").textContent = row.transcript || "";
   $("notes").value = decision.notes || "";
   if (decision.server) {
-    $("labels").innerHTML = `<div class="server-reviewed">Already reviewed on server: ${escapeHtml(decision.label)}</div>`;
+    $("labels").innerHTML = `<div class="server-reviewed">Already reviewed: ${escapeHtml(decision.label)}</div>`;
     return;
   }
-  $("labels").innerHTML = LABELS.map(([value, label], index) =>
-    `<button class="label${decision.label === value ? " active" : ""}" data-label="${value}">${index + 1}. ${label}</button>`
+  $("labels").innerHTML = LABELS.map(([value, label, hint], index) =>
+    `<button class="label ${value}${decision.label === value ? " active" : ""}" data-label="${value}">
+      <span>${index + 1}</span>
+      <strong>${label}</strong>
+      <small>${hint}</small>
+    </button>`
   ).join("");
   document.querySelectorAll(".label").forEach((button) => {
     button.addEventListener("click", () => submitDecision(row, button.dataset.label));
@@ -316,6 +339,7 @@ async function refreshStats() {
     const response = await fetch(`${API}/stats?dataset=${encodeURIComponent(meta.dataset)}`);
     const stats = await response.json();
     renderSummary(`server ${stats.total_decisions || 0}, reviewers ${stats.unique_reviewers || 0}`);
+    renderList();
   } catch {
     renderSummary("server stats unavailable");
   }
@@ -353,7 +377,7 @@ async function start() {
   assignNext();
 }
 
-function init() {
+async function init() {
   loadLocal();
   document.querySelectorAll(".status").forEach((button) => {
     button.addEventListener("click", () => {
@@ -391,6 +415,12 @@ function init() {
       submitDecision(filtered[current], LABELS[idx][0]);
     }
   });
+  try {
+    await loadServerDecisions();
+  } catch (error) {
+    console.error(error);
+  }
+  applyFilters();
   if (reviewer.name) start();
   else renderSummary();
 }

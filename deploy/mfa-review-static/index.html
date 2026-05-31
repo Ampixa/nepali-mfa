@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>tts.ampixa / MFA review</title>
   <link rel="icon" type="image/png" href="/assets/logo.png">
-  <link rel="stylesheet" href="styles.css?v=20260531b">
+  <link rel="stylesheet" href="styles.css?v=20260531d">
 </head>
 <body>
   <div class="shell">
@@ -18,8 +18,14 @@
         </div>
         <button id="refreshStats" class="button">Stats</button>
       </header>
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <span id="progressFill"></span>
+        </div>
+        <div id="labelStats" class="label-stats"></div>
+      </div>
       <section id="setup" class="setup">
-        <label>Name
+        <label>Reviewer name
           <input id="reviewerName" autocomplete="name" placeholder="required">
         </label>
         <label>Email
@@ -72,6 +78,6 @@
     </main>
   </div>
   <script src="data.js"></script>
-  <script src="app.js?v=20260531b"></script>
+  <script src="app.js?v=20260531d"></script>
 </body>
 </html>
