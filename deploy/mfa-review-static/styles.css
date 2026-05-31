@@ -292,6 +292,15 @@ select {
   flex: 1;
 }
 
+.server-reviewed {
+  display: inline-block;
+  border: 1px solid #99d5c9;
+  border-radius: 6px;
+  background: #ecfdf5;
+  color: #0f766e;
+  padding: 10px 12px;
+}
+
 textarea {
   width: min(420px, 38vw);
   min-height: 58px;

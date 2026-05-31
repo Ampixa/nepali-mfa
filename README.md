@@ -253,6 +253,7 @@ Rows:
 - `1000` anonymized source chunks
 - `3.6438h`
 - `0` missing audio
+- `200` server-imported review labels as of 2026-05-31
 - MP3 review audio, mono `16 kHz`, `32 kbps`
 
 Use this dashboard to decide which source chunks become clean MFA seed

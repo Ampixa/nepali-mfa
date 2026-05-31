@@ -147,6 +147,35 @@ def stats():
     })
 
 
+@app.get("/api/decisions/ids")
+def decision_ids():
+    dataset = request.args.get("dataset", "").strip()
+    if not dataset:
+        return jsonify({"error": "missing field: dataset"}), 400
+    with db_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT entry_id, label, MAX(created_at) AS reviewed_at
+            FROM decisions
+            WHERE dataset = ?
+            GROUP BY entry_id
+            ORDER BY entry_id ASC
+            """,
+            (dataset,),
+        ).fetchall()
+    return jsonify({
+        "dataset": dataset,
+        "decisions": [
+            {
+                "entry_id": row["entry_id"],
+                "label": row["label"],
+                "reviewed_at": row["reviewed_at"],
+            }
+            for row in rows
+        ],
+    })
+
+
 @app.post("/api/claims/next")
 def next_claim():
     payload = request.get_json(silent=True) or {}
@@ -292,8 +321,8 @@ def post_decision():
             values,
         )
         conn.execute(
-            "DELETE FROM claims WHERE dataset = ? AND entry_id = ? AND reviewer_name = ?",
-            (values["dataset"], values["entry_id"], values["reviewer_name"]),
+            "DELETE FROM claims WHERE dataset = ? AND entry_id = ?",
+            (values["dataset"], values["entry_id"]),
         )
         conn.commit()
     return jsonify({"ok": True, "id": cur.lastrowid}), 201

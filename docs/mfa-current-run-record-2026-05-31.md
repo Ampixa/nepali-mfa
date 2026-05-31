@@ -411,9 +411,23 @@ Public review deployment update, 2026-05-31 12:06 NPT:
 The public dashboard removes the old localStorage-only progress problem for new
 reviewers. Local dashboards still need manual TSV export.
 
+Public review import update, 2026-05-31 14:48 NPT:
+
+- recovered a local browser-exported TSV from mail;
+- TSV rows: `1000`;
+- labeled rows imported into public API: `200`;
+- imported labels: `164 keep`, `30 text_bad`, `4 minor`,
+  `2 background_audio`;
+- public review stats now report `200 / 1000` completed for
+  `mfa_source_review_public_20260531`;
+- UI now loads server-reviewed IDs on start and marks those rows read-only, so
+  Start/Next begins at the next unreviewed chunk instead of repeating reviewed
+  work.
+
 Current review/export status as of 2026-05-31:
 
-- no source-review TSV has been applied to the MFA tier outputs yet;
+- the public review API has imported `200` source-review labels;
+- no source-review TSV has been applied to the MFA tier output manifests yet;
 - no applied output exists yet at:
 
 ```text

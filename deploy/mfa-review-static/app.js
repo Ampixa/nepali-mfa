@@ -37,6 +37,17 @@ function saveLocal() {
   localStorage.setItem(`${localKey}:email`, reviewer.email);
 }
 
+function mergeServerDecision(entryId, label, reviewedAt) {
+  const current = decisions[entryId] || {};
+  if (current.label && !current.server) return;
+  decisions[entryId] = {
+    ...current,
+    label,
+    server: true,
+    reviewed_at: reviewedAt || "",
+  };
+}
+
 function escapeHtml(text) {
   return String(text || "").replace(/[&<>"']/g, (ch) => ({
     "&": "&amp;",
@@ -139,6 +150,10 @@ function renderCurrent() {
   ].join("");
   $("transcript").textContent = row.transcript || "";
   $("notes").value = decision.notes || "";
+  if (decision.server) {
+    $("labels").innerHTML = `<div class="server-reviewed">Already reviewed on server: ${escapeHtml(decision.label)}</div>`;
+    return;
+  }
   $("labels").innerHTML = LABELS.map(([value, label], index) =>
     `<button class="label${decision.label === value ? " active" : ""}" data-label="${value}">${index + 1}. ${label}</button>`
   ).join("");
@@ -297,6 +312,7 @@ function prev() {
 
 async function refreshStats() {
   try {
+    await loadServerDecisions();
     const response = await fetch(`${API}/stats?dataset=${encodeURIComponent(meta.dataset)}`);
     const stats = await response.json();
     renderSummary(`server ${stats.total_decisions || 0}, reviewers ${stats.unique_reviewers || 0}`);
@@ -305,7 +321,17 @@ async function refreshStats() {
   }
 }
 
-function start() {
+async function loadServerDecisions() {
+  const response = await fetch(`${API}/decisions/ids?dataset=${encodeURIComponent(meta.dataset)}`);
+  if (!response.ok) throw new Error(await response.text());
+  const payload = await response.json();
+  for (const item of payload.decisions || []) {
+    mergeServerDecision(item.entry_id, item.label, item.reviewed_at);
+  }
+  saveLocal();
+}
+
+async function start() {
   reviewer.name = $("reviewerName").value.trim();
   reviewer.email = $("reviewerEmail").value.trim();
   if (!reviewer.name) {
@@ -314,6 +340,15 @@ function start() {
   }
   saveLocal();
   $("setup").classList.add("collapsed");
+  $("saveStatus").textContent = "Loading server-reviewed samples...";
+  $("saveStatus").className = "save-status";
+  try {
+    await loadServerDecisions();
+  } catch (error) {
+    console.error(error);
+    $("saveStatus").textContent = "Server reviewed-list unavailable";
+    $("saveStatus").className = "save-status err";
+  }
   applyFilters();
   assignNext();
 }
