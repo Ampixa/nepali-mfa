@@ -110,9 +110,7 @@ function renderList() {
   }).join("");
   document.querySelectorAll(".sample").forEach((button) => {
     button.addEventListener("click", () => {
-      current = Number(button.dataset.index);
-      renderList();
-      renderCurrent();
+      openSample(Number(button.dataset.index));
     });
   });
 }
@@ -225,6 +223,53 @@ async function assignNext(skipCurrent = false) {
     $("saveStatus").textContent = "Claim failed, using local next";
     $("saveStatus").className = "save-status err";
     nextLocal();
+  }
+}
+
+async function claimRows(candidateIds) {
+  const response = await fetch(`${API}/claims/next`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      dataset: meta.dataset,
+      reviewer_name: reviewer.name,
+      reviewer_email: reviewer.email,
+      candidate_ids: candidateIds,
+      ttl_minutes: 120,
+    }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+async function openSample(index) {
+  const row = filtered[index];
+  if (!row) return;
+  if (!reviewer.name || (decisions[row.id] || {}).label) {
+    current = index;
+    renderList();
+    renderCurrent();
+    return;
+  }
+
+  $("saveStatus").textContent = "Checking claim...";
+  $("saveStatus").className = "save-status";
+  try {
+    const payload = await claimRows([row.id]);
+    if (payload.entry_id !== row.id) {
+      $("saveStatus").textContent = "Already claimed or reviewed by someone else";
+      $("saveStatus").className = "save-status err";
+      return;
+    }
+    current = index;
+    renderList();
+    renderCurrent();
+    $("saveStatus").textContent = payload.reclaimed ? "Resumed claimed sample" : "Claimed sample";
+    $("saveStatus").className = "save-status ok";
+  } catch (error) {
+    console.error(error);
+    $("saveStatus").textContent = "Claim check failed";
+    $("saveStatus").className = "save-status err";
   }
 }
 
