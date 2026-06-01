@@ -129,6 +129,16 @@ Use `nepali-mfa-auto-triage` before large manual review batches. It combines:
 - optional ASR agreement scores such as CER/WER from Chirp2, Whisper, or a
   committee pass.
 
+Build ASR agreement scores first when multiple transcript passes exist:
+
+```bash
+nepali-mfa-asr-agreement \
+  --reference /path/to/mfa_manifest.jsonl \
+  --hypothesis /path/to/whisper_large_v3.jsonl \
+  --hypothesis /path/to/chirp2.jsonl \
+  --out-dir /path/to/asr_agreement
+```
+
 Example:
 
 ```bash
@@ -136,7 +146,7 @@ nepali-mfa-auto-triage \
   --manifest /path/to/mfa_manifest.jsonl \
   --analysis-csv /path/to/alignment_analysis.csv \
   --failure-audit-csv /path/to/failure_audit.csv \
-  --asr-scores-csv /path/to/asr_scores.csv \
+  --asr-scores-csv /path/to/asr_agreement/asr_agreement_scores.csv \
   --review-tsv /path/to/exported_review.tsv \
   --out-dir /path/to/auto_triage
 ```

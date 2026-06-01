@@ -92,3 +92,28 @@ def test_auto_triage_uses_mfa_failure_as_bronze_or_review(tmp_path: Path) -> Non
     assert [row["id"] for row in bronze] == ["mfa_risky"]
     assert bronze[0]["use_for_asr_training"] is True
     assert bronze[0]["use_for_clean_mfa_seed_candidate"] is False
+
+
+def test_auto_triage_ignores_empty_asr_score_rows(tmp_path: Path) -> None:
+    manifest = tmp_path / "manifest.jsonl"
+    manifest.write_text(
+        json.dumps({"id": "x", "transcript": "नेपाल राम्रो छ", "duration_sec": 4.0}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    asr = tmp_path / "asr.csv"
+    asr.write_text("id,cer,wer,asr_models_available\nx,1.0,1.0,0\n", encoding="utf-8")
+    out = tmp_path / "out"
+
+    assert main([
+        "--manifest",
+        str(manifest),
+        "--asr-scores-csv",
+        str(asr),
+        "--out-dir",
+        str(out),
+    ]) == 0
+
+    needs_review = read_jsonl(out / "needs_review.jsonl")
+    rejected = read_jsonl(out / "auto_rejected.jsonl")
+    assert [row["id"] for row in needs_review] == ["x"]
+    assert rejected == []

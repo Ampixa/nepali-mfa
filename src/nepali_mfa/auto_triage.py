@@ -122,6 +122,15 @@ def metric(row: dict[str, str], names: tuple[str, ...]) -> float | None:
     return None
 
 
+def asr_has_signal(asr: dict[str, str] | None) -> bool:
+    if not asr:
+        return False
+    available = as_float(asr.get("asr_models_available"))
+    if available is not None and available <= 0:
+        return False
+    return asr_cer(asr) is not None or asr_wer(asr) is not None
+
+
 def asr_cer(asr: dict[str, str]) -> float | None:
     return metric(
         asr,
@@ -232,7 +241,7 @@ def score_row(
                 reasons.append("low_speech_log_likelihood")
                 risk += 25
 
-        if asr:
+        if asr_has_signal(asr):
             cer = asr_cer(asr)
             wer = asr_wer(asr)
             if cer is not None and cer > args.max_cer:
@@ -258,7 +267,7 @@ def score_row(
             decision = "accept_asr_bronze"
             use_asr = True
             confidence = 0.6
-        elif asr and (asr_cer(asr) is not None or asr_wer(asr) is not None):
+        elif asr_has_signal(asr):
             quality_tier = "auto_silver_asr_mfa"
             decision = "accept_silver"
             use_asr = True

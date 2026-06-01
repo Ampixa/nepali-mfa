@@ -25,6 +25,7 @@ nepali-mfa-build-source-review-dashboard = "nepali_mfa.build_source_review_dashb
 nepali-mfa-audit-alignment-baseline = "nepali_mfa.audit_alignment_baseline:main"
 nepali-mfa-apply-review-labels = "nepali_mfa.apply_review_labels:main"
 nepali-mfa-apply-source-review-labels = "nepali_mfa.apply_source_review_labels:main"
+nepali-mfa-asr-agreement = "nepali_mfa.asr_agreement:main"
 nepali-mfa-auto-triage = "nepali_mfa.auto_triage:main"
 nepali-mfa-build-reverse-g2p = "nepali_mfa.build_reverse_g2p:main"
 nepali-mfa-build-reverse-g2p-corpus = "nepali_mfa.build_reverse_g2p_training_corpus:main"
