@@ -19,7 +19,8 @@ As of the current run record:
   podcast source, YouTube captions, Chirp2 CER<=1, and Chirp2 reviewed data;
 - the current best MFA baseline is a mixed-source 5000-row acoustic model;
 - held-out mixed validation exported `934 / 1000` TextGrids;
-- podcast source rows are being reviewed as candidate-clean MFA seed data;
+- podcast source has been promoted as usable ASR data with human bad-label
+  exclusions and one remaining review row;
 - background-audio rows are treated as ASR noisy/robustness data, not clean MFA
   seed data;
 - the public source-review dashboard now saves labels server-side on

@@ -90,7 +90,7 @@ Current source policy:
 | Source | Current role |
 |---|---|
 | `slr54_gold_v1` | Clean read-speech anchor; useful for MFA seed, but domain-limited. |
-| `podcast_source_reviewed_le30` | Candidate clean podcast speech; needs source review export before promotion. |
+| `podcast_source_reviewed_le30` | Promoted as usable podcast ASR data on 2026-06-01 with human bad-label exclusions. |
 | `youtube_caption_wordtimed_fixed120` | Potential ASR source; chunking/caption alignment needs strict validation. |
 | `chirp2_cer1` | Strong ASR transcript source; likely usable, but not automatically clean MFA seed. |
 | `chirp2_gt1_reviewed` | Weakest held-out MFA coverage; review/repair before trusting. |
@@ -433,6 +433,29 @@ Current review/export status as of 2026-05-31:
 ```text
 /Users/cdjk/asr_mfa_training_YYYYMMDD/source_candidate_clean_reviewed
 ```
+
+Podcast source promotion update, 2026-06-01:
+
+- decision: accept the podcast source as usable ASR material with some tolerated
+  error;
+- source manifest:
+  `/home/cdjk/asr_mfa_outputs_20260516/mfa/sushant_source_reviewed_le30/mfa_manifest.jsonl`;
+- source size: `10214` rows, `37.102261h`;
+- public review decisions mapped back to source rows: `440`;
+- mapped labels: `337 keep`, `32 minor`, `5 background_audio`, `55 text_bad`,
+  `11 audio_bad`;
+- generated output directory:
+  `/home/cdjk/asr_mfa_outputs_20260516/quality_tiers/sushant_source_accepted_20260601`;
+- `auto_silver_clean`: `10142` rows, `36.762550h`;
+- `auto_bronze_asr`: `5` rows, `0.022483h`;
+- `auto_rejected`: `66` rows, `0.311822h`;
+- `needs_review`: `1` row, `0.005406h`;
+- combined ASR-usable manifest:
+  `asr_usable_podcast_source.jsonl`, `10147` rows, `36.785033h`.
+
+This promotion used `nepali-mfa-auto-triage --allow-rules-only-silver`. Human
+`text_bad` and `audio_bad` labels remained hard rejects. Human
+`background_audio` labels were kept only in the noisy ASR tier.
 
 ## Source Label Promotion
 
