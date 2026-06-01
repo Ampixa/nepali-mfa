@@ -32,6 +32,7 @@ nepali-mfa-build-reverse-g2p-corpus = "nepali_mfa.build_reverse_g2p_training_cor
 nepali-mfa-train-reverse-g2p = "nepali_mfa.train_reverse_g2p_model:main"
 nepali-mfa-predict-reverse-g2p = "nepali_mfa.predict_reverse_g2p_model:main"
 nepali-mfa-serve-static-range = "nepali_mfa.serve_static_range:main"
+nepali-mfa-select-review-batch = "nepali_mfa.select_review_batch:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

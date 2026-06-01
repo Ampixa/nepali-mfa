@@ -80,7 +80,7 @@ pytest -q
 Recent result:
 
 ```text
-18 passed, 1 skipped
+20 passed, 1 skipped
 ```
 
 ## MFA Runtime
@@ -199,6 +199,19 @@ nepali-mfa-asr-agreement \
 
 Use `outputs/asr_agreement/asr_agreement_scores.csv` as
 `nepali-mfa-auto-triage --asr-scores-csv`.
+
+Select a balanced human-review batch from uncertain rows:
+
+```bash
+nepali-mfa-select-review-batch \
+  --manifest outputs/auto_triage/auto_triaged_all.jsonl \
+  --limit-rows 1000 \
+  --max-hours 5 \
+  --stratify source_reason \
+  --out-dir outputs/review_batch_001
+```
+
+Then build a review dashboard from `outputs/review_batch_001/review_batch.jsonl`.
 
 ## Source Review Workflow
 
@@ -331,6 +344,7 @@ to the review pool.
 | `nepali-mfa-train-reverse-g2p` | Train learned reverse-G2P model. |
 | `nepali-mfa-predict-reverse-g2p` | Decode phones with learned reverse-G2P model. |
 | `nepali-mfa-serve-static-range` | Serve dashboards with byte-range audio support. |
+| `nepali-mfa-select-review-batch` | Select balanced human-review batches from auto-triaged manifests. |
 
 ## Docs
 

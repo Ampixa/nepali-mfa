@@ -170,6 +170,19 @@ By default, rows without an external signal stay in `needs_review` even if basic
 text and duration checks pass. Use `--allow-rules-only-silver` only for trusted,
 already-characterized sources.
 
+After triage, select a bounded manual-review batch:
+
+```bash
+nepali-mfa-select-review-batch \
+  --manifest /path/to/auto_triage/auto_triaged_all.jsonl \
+  --limit-rows 1000 \
+  --max-hours 5 \
+  --stratify source_reason \
+  --out-dir /path/to/review_batch_001
+```
+
+This avoids reviewing only one channel, one failure mode, or one easy source.
+
 ## Next Production Target
 
 Train the next MFA model from a larger reviewed seed:
