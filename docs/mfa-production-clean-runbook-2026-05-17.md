@@ -117,6 +117,49 @@ correct. They should be excluded or downweighted for the clean MFA seed set.
 7. Keep `asr_noisy_background.jsonl` as a separate ASR robustness tier.
 8. Re-run held-out validation and compare coverage by source.
 
+## Automated Nepali Triage
+
+Use `nepali-mfa-auto-triage` before large manual review batches. It combines:
+
+- human review labels, if available;
+- source transcript text checks for `[सङ्गीत]`, `>>`, and other caption artifacts;
+- duration bounds;
+- OOV count and OOV ratio;
+- MFA failure buckets and `alignment_analysis.csv` metrics;
+- optional ASR agreement scores such as CER/WER from Chirp2, Whisper, or a
+  committee pass.
+
+Example:
+
+```bash
+nepali-mfa-auto-triage \
+  --manifest /path/to/mfa_manifest.jsonl \
+  --analysis-csv /path/to/alignment_analysis.csv \
+  --failure-audit-csv /path/to/failure_audit.csv \
+  --asr-scores-csv /path/to/asr_scores.csv \
+  --review-tsv /path/to/exported_review.tsv \
+  --out-dir /path/to/auto_triage
+```
+
+Output policy:
+
+- `auto_silver_clean.jsonl`: clean candidate rows for ASR and clean MFA seed.
+- `auto_bronze_asr.jsonl`: usable for ASR robustness, not clean MFA seed.
+- `auto_rejected.jsonl`: obvious text/audio/artifact failures.
+- `needs_review.jsonl`: uncertain rows for human review.
+
+This is a gate, not a final judge. For Nepali, keep human review on:
+
+- rows with numbers/year wording;
+- high OOV ratio;
+- background audio or other speakers;
+- failed MFA alignment but apparently correct transcript;
+- new channels or domains before trusting their captions.
+
+By default, rows without an external signal stay in `needs_review` even if basic
+text and duration checks pass. Use `--allow-rules-only-silver` only for trusted,
+already-characterized sources.
+
 ## Next Production Target
 
 Train the next MFA model from a larger reviewed seed:

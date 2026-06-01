@@ -80,7 +80,7 @@ pytest -q
 Recent result:
 
 ```text
-13 passed, 1 skipped
+15 passed, 1 skipped
 ```
 
 ## MFA Runtime
@@ -158,6 +158,33 @@ nepali-mfa-apply-review-labels \
   --out-dir outputs/reviewed_tiers \
   --repair-year-style
 ```
+
+Automatically triage a larger manifest before sending uncertain rows to humans:
+
+```bash
+nepali-mfa-auto-triage \
+  --manifest outputs/mfa_export/mfa_manifest.jsonl \
+  --analysis-csv outputs/aligned/alignment_analysis.csv \
+  --failure-audit-csv outputs/aligned/failure_audit.csv \
+  --asr-scores-csv outputs/asr_agreement_scores.csv \
+  --review-tsv exported_human_labels.tsv \
+  --out-dir outputs/auto_triage
+```
+
+Auto-triage outputs:
+
+- `auto_silver_clean.jsonl`
+- `auto_bronze_asr.jsonl`
+- `auto_rejected.jsonl`
+- `needs_review.jsonl`
+- `auto_triaged_all.jsonl`
+- `summary.json`
+
+Policy: human labels override machine decisions. Otherwise, the command only
+promotes rows when duration, text, caption-artifact, OOV, and at least one
+external confidence signal such as MFA metrics or ASR agreement pass. Ambiguous
+rows go to `needs_review`. Use `--allow-rules-only-silver` only for already
+trusted sources where text/duration rules alone are acceptable.
 
 ## Source Review Workflow
 
@@ -283,6 +310,7 @@ to the review pool.
 | `nepali-mfa-audit-alignment-baseline` | Summarize held-out baseline and generate review/pass candidates. |
 | `nepali-mfa-apply-review-labels` | Apply held-out failure-dashboard TSV labels. |
 | `nepali-mfa-apply-source-review-labels` | Apply source-dashboard TSV labels. |
+| `nepali-mfa-auto-triage` | Combine human labels, MFA metrics, ASR agreement scores, duration, OOV, and text-artifact checks into silver/bronze/review/reject manifests. |
 | `nepali-mfa-build-reverse-g2p` | Build reverse-G2P index. |
 | `nepali-mfa-build-reverse-g2p-corpus` | Build learned reverse-G2P training rows. |
 | `nepali-mfa-train-reverse-g2p` | Train learned reverse-G2P model. |
