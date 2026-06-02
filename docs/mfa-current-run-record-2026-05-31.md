@@ -57,6 +57,7 @@ Important M4 paths:
 | Held-out 1000 validation slice | `/Users/cdjk/asr_mfa_validation_slices_20260516/mixed_heldout_1000` |
 | Mixed 5000 trained MFA model | `/Users/cdjk/asr_mfa_training_20260516/mixed_5000_train_m4/nepali_mixed_5000_acoustic.zip` |
 | Held-out alignment output | `/Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/aligned` |
+| Held-out clean-detection smoke | `/Users/cdjk/asr_mfa_training_20260517/mfa_heldout_clean_detection_smoke_20260602` |
 | Held-out failure dashboard | `/Users/cdjk/asr_mfa_training_20260517/mixed_heldout_1000_align_mixed5k/failure_dashboard` |
 | source dashboard | source-specific runtime dashboard path on the M4, not tracked in Git |
 
@@ -94,6 +95,12 @@ Current source policy:
 | `youtube_caption_wordtimed_fixed120` | Potential ASR source; chunking/caption alignment needs strict validation. |
 | `chirp2_cer1` | Strong ASR transcript source; likely usable, but not automatically clean MFA seed. |
 | `chirp2_gt1_reviewed` | Weakest held-out MFA coverage; review/repair before trusting. |
+
+Related smoke note:
+
+```text
+docs/mfa-heldout-clean-detection-smoke-2026-06-02.md
+```
 
 ## Acoustic-Model Lineage
 
